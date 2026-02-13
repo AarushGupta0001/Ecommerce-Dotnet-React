@@ -18,8 +18,6 @@ namespace ECommerce.API.Controllers
             _context = context;
         }
 
-        [Authorize]
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {

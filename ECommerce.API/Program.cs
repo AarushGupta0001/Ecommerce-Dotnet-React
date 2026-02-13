@@ -50,6 +50,7 @@ namespace ECommerce.API
             var jwtSettings = builder.Configuration.GetSection("Jwt");
             var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -68,6 +69,16 @@ namespace ECommerce.API
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
             });
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    policy => policy
+                        .WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+            });
+
+
 
 
             var app = builder.Build();
@@ -79,6 +90,8 @@ namespace ECommerce.API
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowFrontend");
+
             app.UseAuthentication();
 
             app.UseAuthorization();
