@@ -78,6 +78,46 @@ namespace ECommerce.API.Controllers
 
             return Ok(result);
         }
+        // PUT: api/cart/update
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateQuantity(int productId, int quantity)
+        {
+            var email = User.Identity!.Name;
+            var user = await _context.Users.FirstAsync(u => u.Email == email);
+
+            var cartItem = await _context.CartItems
+                .Include(ci => ci.Cart)
+                .FirstOrDefaultAsync(ci => ci.ProductId == productId && ci.Cart.UserId == user.Id);
+
+            if (cartItem == null)
+                return NotFound("Item not found in cart");
+
+            cartItem.Quantity = quantity;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Cart updated");
+        }
+        // DELETE: api/cart/remove
+        [HttpDelete("remove")]
+        public async Task<IActionResult> RemoveFromCart(int productId)
+        {
+            var email = User.Identity!.Name;
+            var user = await _context.Users.FirstAsync(u => u.Email == email);
+
+            var cartItem = await _context.CartItems
+                .Include(ci => ci.Cart)
+                .FirstOrDefaultAsync(ci => ci.ProductId == productId && ci.Cart.UserId == user.Id);
+
+            if (cartItem == null)
+                return NotFound("Item not found in cart");
+
+            _context.CartItems.Remove(cartItem);
+            await _context.SaveChangesAsync();
+
+            return Ok("Item removed from cart");
+        }
+
 
     }
 }
