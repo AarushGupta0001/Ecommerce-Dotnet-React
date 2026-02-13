@@ -1,4 +1,5 @@
-﻿using ECommerce.API.Models;
+﻿using ECommerce.API.Helpers;
+using ECommerce.API.Models;
 
 namespace ECommerce.API.Data
 {
@@ -6,6 +7,18 @@ namespace ECommerce.API.Data
     {
         public static void Seed(AppDbContext context)
         {
+            if (!context.Users.Any(u => u.Email == "admin@test.com"))
+            {
+                context.Users.Add(new User
+                {
+                    Name = "Admin",
+                    Email = "admin@test.com",
+                    PasswordHash = PasswordHasher.Hash("admin123"),
+                    Role = "Admin"
+                });
+                context.SaveChanges();
+            }
+
             if (!context.Products.Any())
             {
                 context.Products.AddRange(
