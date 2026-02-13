@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ECommerce.API.Data;
+using Microsoft.AspNetCore.Authorization;
+
 using ECommerce.API.Models;
 
 namespace ECommerce.API.Controllers
@@ -15,6 +17,8 @@ namespace ECommerce.API.Controllers
         {
             _context = context;
         }
+
+        [Authorize]
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
