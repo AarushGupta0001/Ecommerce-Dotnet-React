@@ -12,10 +12,13 @@ namespace ECommerce.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _config;
 
-        public AuthController(AppDbContext context)
+
+        public AuthController(AppDbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
 
         [HttpPost("register")]
@@ -36,5 +39,24 @@ namespace ECommerce.API.Controllers
 
             return Ok("User registered successfully");
         }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto dto)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user == null)
+                return Unauthorized("Invalid credentials");
+
+            var hashedPassword = PasswordHasher.Hash(dto.Password);
+
+            if (user.PasswordHash != hashedPassword)
+                return Unauthorized("Invalid credentials");
+
+            var token = JwtHelper.GenerateToken(user, _config);
+
+            return Ok(new { token });
+        }
+
     }
 }
