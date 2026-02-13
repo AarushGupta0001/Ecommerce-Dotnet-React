@@ -52,5 +52,32 @@ namespace ECommerce.API.Controllers
 
             return Ok("Item added to cart");
         }
+        // GET: api/cart
+        [HttpGet]
+        public async Task<IActionResult> GetCart()
+        {
+            var email = User.Identity!.Name;
+            var user = await _context.Users.FirstAsync(u => u.Email == email);
+
+            var cart = await _context.Carts
+                .Include(c => c.Items)
+                .ThenInclude(i => i.Product)
+                .FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+            if (cart == null || !cart.Items.Any())
+                return Ok(new { message = "Cart is empty" });
+
+            var result = cart.Items.Select(i => new
+            {
+                ProductId = i.ProductId,
+                ProductName = i.Product.Name,
+                Price = i.Product.Price,
+                Quantity = i.Quantity,
+                Total = i.Product.Price * i.Quantity
+            });
+
+            return Ok(result);
+        }
+
     }
 }
