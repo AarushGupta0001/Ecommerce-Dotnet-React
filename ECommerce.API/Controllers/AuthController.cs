@@ -25,7 +25,7 @@ namespace ECommerce.API.Controllers
         public async Task<IActionResult> Register(RegisterDto dto)
         {
             if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-                return BadRequest("Email already exists");
+                return BadRequest(new { message = "Email already exists" });
 
             var user = new User
             {
@@ -37,8 +37,9 @@ namespace ECommerce.API.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok("User registered successfully");
+            return Ok(new { message = "User registered successfully" });
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
@@ -46,12 +47,12 @@ namespace ECommerce.API.Controllers
                 .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
             if (user == null)
-                return Unauthorized("Invalid credentials");
+                return Unauthorized(new { message = "Invalid credentials" });
 
             var hashedPassword = PasswordHasher.Hash(dto.Password);
 
             if (user.PasswordHash != hashedPassword)
-                return Unauthorized("Invalid credentials");
+                return Unauthorized(new { message = "Invalid credentials" });
 
             var token = JwtHelper.GenerateToken(user, _config);
 

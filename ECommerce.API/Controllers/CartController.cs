@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using ECommerce.API.Data;
 using ECommerce.API.Models;
 
@@ -32,7 +31,7 @@ namespace ECommerce.API.Controllers
 
             if (cart == null)
             {
-                cart = new Cart { UserId = user.Id };
+                cart = new Cart { UserId = user.Id, Items = new List<CartItem>() };
                 _context.Carts.Add(cart);
                 await _context.SaveChangesAsync();
             }
@@ -50,8 +49,9 @@ namespace ECommerce.API.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok("Item added to cart");
+            return Ok(new { success = true, message = "Item added to cart" });
         }
+
         // GET: api/cart
         [HttpGet]
         public async Task<IActionResult> GetCart()
@@ -78,6 +78,7 @@ namespace ECommerce.API.Controllers
 
             return Ok(result);
         }
+
         // PUT: api/cart/update
         [HttpPut("update")]
         public async Task<IActionResult> UpdateQuantity(int productId, int quantity)
@@ -90,14 +91,14 @@ namespace ECommerce.API.Controllers
                 .FirstOrDefaultAsync(ci => ci.ProductId == productId && ci.Cart.UserId == user.Id);
 
             if (cartItem == null)
-                return NotFound("Item not found in cart");
+                return NotFound(new { success = false, message = "Item not found in cart" });
 
             cartItem.Quantity = quantity;
-
             await _context.SaveChangesAsync();
 
-            return Ok("Cart updated");
+            return Ok(new { success = true, message = "Cart updated" });
         }
+
         // DELETE: api/cart/remove
         [HttpDelete("remove")]
         public async Task<IActionResult> RemoveFromCart(int productId)
@@ -110,14 +111,12 @@ namespace ECommerce.API.Controllers
                 .FirstOrDefaultAsync(ci => ci.ProductId == productId && ci.Cart.UserId == user.Id);
 
             if (cartItem == null)
-                return NotFound("Item not found in cart");
+                return NotFound(new { success = false, message = "Item not found" });
 
             _context.CartItems.Remove(cartItem);
             await _context.SaveChangesAsync();
 
-            return Ok("Item removed from cart");
+            return Ok(new { success = true, message = "Item removed" });
         }
-
-
     }
 }

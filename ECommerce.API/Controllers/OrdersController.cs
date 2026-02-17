@@ -31,7 +31,7 @@ namespace ECommerce.API.Controllers
                 .FirstOrDefaultAsync(c => c.UserId == user.Id);
 
             if (cart == null || !cart.Items.Any())
-                return BadRequest("Cart is empty");
+                return BadRequest(new { message = "Cart is empty" });
 
             var order = new Order
             {
@@ -95,12 +95,12 @@ namespace ECommerce.API.Controllers
             var order = await _context.Orders.FindAsync(orderId);
 
             if (order == null)
-                return NotFound("Order not found");
+                return NotFound(new { message = "Order not found" });
 
             order.Status = status;
             await _context.SaveChangesAsync();
 
-            return Ok("Order status updated");
+            return Ok(new { message = "Order status updated" });
         }
         // GET: api/orders/my
         [HttpGet("my")]
